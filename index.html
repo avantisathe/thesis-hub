@@ -26,11 +26,17 @@
   html, body { height: 100%; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
 
-  /* Layout */
   header { padding: 1.1rem 2rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 12px; position: sticky; top: 0; background: var(--bg); z-index: 100; }
   header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
   header p { font-size: 12px; color: var(--text2); margin-top: 1px; }
   .header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  .sync-status { font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 5px; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
+  .sync-dot.ok { background: #16a34a; }
+  .sync-dot.err { background: #dc2626; }
+  .sync-dot.loading { background: #d97706; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
   nav { display: flex; border-bottom: 0.5px solid var(--border); background: var(--bg); overflow-x: auto; padding: 0 2rem; position: sticky; top: 57px; z-index: 99; scrollbar-width: none; }
   nav::-webkit-scrollbar { display: none; }
@@ -42,22 +48,31 @@
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* Backup banner */
-  .banner { background: #fefce8; border: 0.5px solid #fde68a; border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #92400e; }
-  .banner-close { margin-left: auto; background: none; border: none; cursor: pointer; color: #92400e; font-size: 16px; line-height: 1; padding: 0 2px; }
+  /* Setup banner */
+  .setup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .setup-card { background: var(--surface); border-radius: var(--radius-lg); padding: 2rem; max-width: 480px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+  .setup-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .setup-card p { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; line-height: 1.7; }
+  .setup-steps { font-size: 12px; color: var(--text2); background: var(--surface2); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem; line-height: 2; }
+  .setup-steps a { color: #2563eb; }
+  .setup-card input { width: 100%; margin-bottom: 10px; font-family: var(--font); }
+  .token-row { display: flex; gap: 8px; }
 
-  /* Components */
+  /* Banner */
+  .banner { border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .banner-warn { background: #fefce8; border: 0.5px solid #fde68a; color: #92400e; }
+  .banner-err  { background: #fef2f2; border: 0.5px solid #fecaca; color: #b91c1c; }
+  .banner-close { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; color: inherit; }
+
   .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
   .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; transition: border-color 0.15s; }
   .card:hover { border-color: var(--border-med); }
 
-  /* Metrics */
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 1.75rem; }
   .metric { background: var(--surface2); border-radius: var(--radius-md); padding: 0.9rem 1rem; }
   .metric-val { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
   .metric-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
 
-  /* Forms */
   .add-bar { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
   input, select, textarea { font-family: var(--font); font-size: 13px; padding: 8px 11px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s; }
   input:focus, select:focus, textarea:focus { border-color: var(--border-med); box-shadow: 0 0 0 3px rgba(0,0,0,0.04); }
@@ -70,7 +85,6 @@
   .ghost-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border-med); }
   .danger-btn:hover { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
 
-  /* Badges */
   .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
   .b-gray   { background: #f0efe9; color: #5c5c56; }
   .b-blue   { background: #dbeafe; color: #1d4ed8; }
@@ -81,66 +95,73 @@
   .b-teal   { background: #ccfbf1; color: #0f766e; }
   .b-pink   { background: #fce7f3; color: #be185d; }
 
-  /* Filter chips */
   .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
   .chip { background: none; border: 0.5px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--text2); cursor: pointer; font-family: var(--font); transition: all 0.15s; }
   .chip:hover { border-color: var(--border-med); color: var(--text); }
   .chip.active { background: var(--accent); color: var(--accent-bg); border-color: var(--accent); }
 
-  /* Item rows */
   .item-title { font-size: 14px; font-weight: 500; color: var(--text); }
-  .item-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  .item-link { font-size: 12px; color: #2563eb; word-break: break-all; margin-top: 3px; text-decoration: none; }
+  .item-meta  { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .item-link  { font-size: 12px; color: #2563eb; word-break: break-all; margin-top: 3px; text-decoration: none; }
   .item-link:hover { text-decoration: underline; }
-  .row { display: flex; align-items: flex-start; gap: 10px; }
+  .row  { display: flex; align-items: flex-start; gap: 10px; }
   .grow { flex: 1; min-width: 0; }
 
-  /* Progress */
   .progress-wrap { margin-bottom: 1.75rem; }
-  .progress-bg { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+  .progress-bg   { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 6px; }
   .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
   .steps-list { list-style: none; }
-  .step-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .step-row   { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
   .step-row:last-child { border-bottom: none; }
-  .step-box { width: 17px; height: 17px; border: 1.5px solid var(--border-med); border-radius: 4px; cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; background: none; transition: all 0.15s; }
+  .step-box   { width: 17px; height: 17px; border: 1.5px solid var(--border-med); border-radius: 4px; cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; background: none; transition: all 0.15s; }
   .step-box.done { background: var(--accent); border-color: var(--accent); }
   .step-box.done::after { content: '✓'; font-size: 10px; color: var(--accent-bg); }
   .step-label { font-size: 14px; flex: 1; line-height: 1.5; }
   .step-label.done { color: var(--text2); text-decoration: line-through; }
 
-  /* Feedback */
   .fb-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; transition: border-color 0.15s; }
   .fb-card:hover { border-color: var(--border-med); }
-  .fb-header { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 8px; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; background: var(--surface); }
-  .fb-meta { font-size: 12px; color: var(--text2); }
-  .fb-body { padding: 1rem; white-space: pre-wrap; font-size: 13px; line-height: 1.85; color: var(--text); }
+  .fb-header { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 8px; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; }
+  .fb-meta   { font-size: 12px; color: var(--text2); }
+  .fb-body   { padding: 1rem; white-space: pre-wrap; font-size: 13px; line-height: 1.85; color: var(--text); }
   .fb-status { display: flex; gap: 8px; padding: 0.6rem 1rem; border-top: 0.5px solid var(--border); flex-wrap: wrap; background: var(--surface2); }
   .status-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--border); background: var(--surface); color: var(--text2); font-family: var(--font); transition: all 0.15s; }
-  .status-chip[data-v="open"].sel        { background: #fef3c7; color: #b45309; border-color: #fde68a; font-weight:500; }
-  .status-chip[data-v="in-progress"].sel { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; font-weight:500; }
-  .status-chip[data-v="addressed"].sel  { background: #dcfce7; color: #15803d; border-color: #bbf7d0; font-weight:500; }
+  .status-chip[data-v="open"].sel        { background: #fef3c7; color: #b45309; border-color: #fde68a; font-weight: 500; }
+  .status-chip[data-v="in-progress"].sel { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; font-weight: 500; }
+  .status-chip[data-v="addressed"].sel   { background: #dcfce7; color: #15803d; border-color: #bbf7d0; font-weight: 500; }
 
-  /* Empty */
   .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 13px; }
   .empty-icon { font-size: 28px; margin-bottom: 8px; }
-
-  /* Overview grid */
   .ov-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.75rem; }
-  @media (max-width: 600px) { .ov-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .ov-grid { grid-template-columns: 1fr; } header { padding: 1rem; } main { padding: 1rem; } nav { padding: 0 1rem; } }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 3px; }
-
-  @media (max-width: 600px) {
-    header { padding: 1rem; }
-    main { padding: 1rem; }
-    nav { padding: 0 1rem; }
-  }
 </style>
 </head>
 <body>
+
+<!-- SETUP OVERLAY -->
+<div class="setup-overlay" id="setup-overlay" style="display:none;">
+  <div class="setup-card">
+    <h2>🔐 Connect to GitHub</h2>
+    <p>Your data will save automatically to your GitHub repo every time you make a change — accessible from any device, forever.</p>
+    <div class="setup-steps">
+      1. Go to <a href="https://github.com/settings/tokens/new" target="_blank">github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)</a><br>
+      2. Name it anything (e.g. "thesis hub")<br>
+      3. Check only the <strong>repo</strong> scope<br>
+      4. Set expiration to <strong>No expiration</strong><br>
+      5. Click Generate token and paste it below
+    </div>
+    <input id="setup-token" type="password" placeholder="Paste your GitHub token here (ghp_...)" />
+    <div style="font-size:12px; color:var(--text3); margin-bottom:12px;">Your token is stored only in this browser — never sent anywhere except GitHub's API.</div>
+    <div class="token-row">
+      <button class="primary-btn" onclick="saveToken()" style="flex:1;">Connect & save</button>
+      <button class="ghost-btn" onclick="skipSetup()">Skip for now</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div>
@@ -148,8 +169,11 @@
     <p>Help-seeking behaviors in student populations · Dr. MacIntyre</p>
   </div>
   <div class="header-right">
-    <button class="ghost-btn" onclick="exportData()">↓ Export backup</button>
-    <label class="ghost-btn" style="cursor:pointer;">↑ Import <input type="file" accept=".json" onchange="importData(event)" style="display:none;"></label>
+    <div class="sync-status" id="sync-status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Not connected</span>
+    </div>
+    <button class="ghost-btn" onclick="showSetup()" title="GitHub sync settings">⚙ Sync</button>
   </div>
 </header>
 
@@ -167,11 +191,7 @@
 
 <!-- OVERVIEW -->
 <div class="panel active" id="tab-overview">
-  <div id="backup-banner" class="banner" style="display:none;">
-    💾 You haven't exported a backup in a while. <strong style="margin-left:4px;">Export backup</strong> takes 2 seconds and keeps your data safe.
-    <button class="ghost-btn" onclick="exportData()" style="margin-left:4px; padding:4px 10px; font-size:12px;">Export now</button>
-    <button class="banner-close" onclick="dismissBanner()">✕</button>
-  </div>
+  <div id="err-banner" class="banner banner-err" style="display:none;"></div>
   <div class="metrics" id="ov-metrics"></div>
   <div class="ov-grid">
     <div>
@@ -185,7 +205,7 @@
   </div>
   <div>
     <div class="section-label">Running notes</div>
-    <textarea id="global-notes" placeholder="Running thoughts, advisor meeting notes, anything freeform..." style="min-height:140px;" oninput="data.notes=this.value; save()"></textarea>
+    <textarea id="global-notes" placeholder="Running thoughts, advisor meeting notes, anything freeform..." style="min-height:140px;" oninput="data.notes=this.value; debouncedSync()"></textarea>
   </div>
 </div>
 
@@ -362,70 +382,159 @@
 </main>
 
 <script>
-const STORAGE_KEY = 'thesis_hub_v2';
-const LAST_EXPORT_KEY = 'thesis_hub_last_export';
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const GH_USER = 'avantisathe';
+const GH_REPO = 'thesis-hub';
+const GH_FILE = 'data.json';
+const GH_API  = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
+const TOKEN_KEY   = 'thesis_gh_token';
+const LOCAL_KEY   = 'thesis_hub_v2';
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+let ghToken = localStorage.getItem(TOKEN_KEY) || '';
+let fileSha  = '';  // needed for GitHub PUT updates
+let syncTimer = null;
 
 let data = {
-  papers: [], resources: [], ideas: [], feedback: [], writing: [],
-  steps: [
-    { id:1,  text:'Define research questions and scope',           done:false, priority:'high' },
-    { id:2,  text:'Complete literature review',                    done:false, priority:'high' },
-    { id:3,  text:'Select and justify methodology',                done:false, priority:'high' },
-    { id:4,  text:'Submit IRB application',                        done:false, priority:'high' },
-    { id:5,  text:'Recruit participants / collect data',           done:false, priority:'medium' },
-    { id:6,  text:'Analyze data',                                  done:false, priority:'medium' },
-    { id:7,  text:'Draft introduction & lit review chapters',      done:false, priority:'medium' },
-    { id:8,  text:'Draft methods & results chapters',              done:false, priority:'medium' },
-    { id:9,  text:'Draft discussion & conclusion',                 done:false, priority:'medium' },
-    { id:10, text:'Revisions with Dr. MacIntyre',                  done:false, priority:'high' },
-    { id:11, text:'Panel / committee review',                      done:false, priority:'high' },
-    { id:12, text:'Final submission',                              done:false, priority:'high' },
+  papers:[], resources:[], ideas:[], feedback:[], writing:[],
+  steps:[
+    {id:1,  text:'Define research questions and scope',           done:false, priority:'high'},
+    {id:2,  text:'Complete literature review',                    done:false, priority:'high'},
+    {id:3,  text:'Select and justify methodology',                done:false, priority:'high'},
+    {id:4,  text:'Submit IRB application',                        done:false, priority:'high'},
+    {id:5,  text:'Recruit participants / collect data',           done:false, priority:'medium'},
+    {id:6,  text:'Analyze data',                                  done:false, priority:'medium'},
+    {id:7,  text:'Draft introduction & lit review chapters',      done:false, priority:'medium'},
+    {id:8,  text:'Draft methods & results chapters',              done:false, priority:'medium'},
+    {id:9,  text:'Draft discussion & conclusion',                 done:false, priority:'medium'},
+    {id:10, text:'Revisions with Dr. MacIntyre',                  done:false, priority:'high'},
+    {id:11, text:'Panel / committee review',                      done:false, priority:'high'},
+    {id:12, text:'Final submission',                              done:false, priority:'high'},
   ],
-  notes: '',
-  filters: { papers:'all', resources:'all', ideas:'all', feedback:'all', writing:'all' }
+  notes:'',
+  filters:{papers:'all',resources:'all',ideas:'all',feedback:'all',writing:'all'}
 };
 
-try { const s = localStorage.getItem(STORAGE_KEY); if (s) { const d = JSON.parse(s); data = { ...data, ...d, filters: { ...data.filters, ...(d.filters||{}) } }; } } catch(e) {}
-
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) { alert('Storage full — please export a backup now.'); } }
-
-// Banner: show if last export was > 7 days ago or never
-function checkBanner() {
-  const last = localStorage.getItem(LAST_EXPORT_KEY);
-  if (!last) { showBanner(); return; }
-  const days = (Date.now() - parseInt(last)) / (1000*60*60*24);
-  if (days > 7) showBanner();
+// ── GITHUB SYNC ──────────────────────────────────────────────────────────────
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot' + (state ? ' '+state : '');
+  lbl.textContent = label;
 }
-function showBanner() { const b = document.getElementById('backup-banner'); if (b) b.style.display='flex'; }
-function dismissBanner() { const b = document.getElementById('backup-banner'); if (b) b.style.display='none'; }
 
+async function loadFromGitHub() {
+  if (!ghToken) { loadLocal(); return; }
+  setSyncStatus('loading', 'Loading…');
+  try {
+    const res = await fetch(GH_API, { headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' } });
+    if (res.status === 404) {
+      // File doesn't exist yet — start fresh, will be created on first save
+      setSyncStatus('ok', 'Connected · no data yet');
+      loadLocal();
+      return;
+    }
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const json = await res.json();
+    fileSha = json.sha;
+    const decoded = JSON.parse(atob(json.content.replace(/\n/g,'')));
+    data = { ...data, ...decoded, filters: { ...data.filters, ...(decoded.filters||{}) } };
+    saveLocal();
+    setSyncStatus('ok', 'Synced · ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+    hideError();
+  } catch(e) {
+    setSyncStatus('err', 'Sync error');
+    showError('Could not load from GitHub: ' + e.message + '. Working from local data.');
+    loadLocal();
+  }
+  renderOverview();
+  renderProgress();
+}
+
+async function syncToGitHub() {
+  if (!ghToken) { saveLocal(); return; }
+  setSyncStatus('loading', 'Saving…');
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    const body = { message: 'thesis hub update ' + new Date().toISOString(), content, ...(fileSha ? { sha: fileSha } : {}) };
+    const res = await fetch(GH_API, { method:'PUT', headers:{ Authorization:`token ${ghToken}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message||'HTTP '+res.status); }
+    const json = await res.json();
+    fileSha = json.content.sha;
+    saveLocal();
+    setSyncStatus('ok', 'Saved · ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    hideError();
+  } catch(e) {
+    setSyncStatus('err', 'Save failed');
+    showError('Could not save to GitHub: ' + e.message + '. Your data is safe locally — try again in a moment.');
+    saveLocal();
+  }
+}
+
+function debouncedSync() {
+  saveLocal();
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncToGitHub, 1500);
+}
+
+// ── LOCAL FALLBACK ───────────────────────────────────────────────────────────
+function saveLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(data)); } catch(e) {} }
+function loadLocal() {
+  try { const s = localStorage.getItem(LOCAL_KEY); if (s) { const d=JSON.parse(s); data={...data,...d,filters:{...data.filters,...(d.filters||{})}}; } } catch(e) {}
+}
+
+// ── TOKEN SETUP ──────────────────────────────────────────────────────────────
+function showSetup() { document.getElementById('setup-overlay').style.display='flex'; }
+function skipSetup() {
+  document.getElementById('setup-overlay').style.display='none';
+  if (!ghToken) setSyncStatus('', 'Local only');
+}
+function saveToken() {
+  const t = document.getElementById('setup-token').value.trim();
+  if (!t) { alert('Please paste your GitHub token.'); return; }
+  ghToken = t;
+  localStorage.setItem(TOKEN_KEY, t);
+  document.getElementById('setup-overlay').style.display='none';
+  loadFromGitHub();
+}
+
+// ── ERROR BANNER ─────────────────────────────────────────────────────────────
+function showError(msg) {
+  const b = document.getElementById('err-banner');
+  b.innerHTML = '⚠️ ' + msg + ' <button class="banner-close" onclick="hideError()">✕</button>';
+  b.style.display='flex';
+}
+function hideError() { document.getElementById('err-banner').style.display='none'; }
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
 function switchTab(name, btn) {
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   renders[name] && renders[name]();
 }
 
-// HELPERS
-const v    = id => document.getElementById(id)?.value?.trim() || '';
-const esc  = s  => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const v     = id => document.getElementById(id)?.value?.trim()||'';
+const esc   = s  => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const today = () => new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-function del(type, id)  { data[type] = data[type].filter(x=>x.id!==id); save(); }
-function chips(activeBtn) { activeBtn.closest('.filter-bar').querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); activeBtn.classList.add('active'); }
+function del(type,id)  { data[type]=data[type].filter(x=>x.id!==id); debouncedSync(); }
+function chips(btn)    { btn.closest('.filter-bar').querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); btn.classList.add('active'); }
+function updateField(type,id,key,val) { const item=data[type].find(x=>x.id===id); if(item){item[key]=val; debouncedSync();} }
 
-// BADGES
-const pBadge = s => ({ unread:['b-gray','Unread'], reading:['b-amber','Reading'], annotated:['b-teal','Annotated'], cited:['b-blue','Cited'] }[s]||['b-gray','?']);
-const rBadge = t => ({ link:['b-blue','Link'], pdf:['b-red','PDF'], doc:['b-purple','Doc'], dataset:['b-teal','Dataset'], tool:['b-amber','Tool'], other:['b-gray','Other'] }[t]||['b-gray','Other']);
-const iBadge = t => ({ question:['b-blue','Research question'], hypothesis:['b-purple','Hypothesis'], method:['b-teal','Methodology'], gap:['b-amber','Gap in lit'], connection:['b-pink','Connection'], note:['b-gray','Note'] }[t]||['b-gray','Note']);
-const wBadge = t => ({ freewrite:['b-gray','Freewrite'], draft:['b-blue','Draft'], outline:['b-purple','Outline'], argument:['b-teal','Argument'], reflect:['b-pink','Reflection'], meeting:['b-amber','Meeting notes'] }[t]||['b-gray','Note']);
-const fbCtx  = c => ({ meeting:'Meeting', email:'Email', written:'Written', defense:'Defense/Panel', draft:'Draft review', other:'Other' }[c]||c);
+// ── BADGES ────────────────────────────────────────────────────────────────────
+const pBadge = s => ({unread:['b-gray','Unread'],reading:['b-amber','Reading'],annotated:['b-teal','Annotated'],cited:['b-blue','Cited']}[s]||['b-gray','?']);
+const rBadge = t => ({link:['b-blue','Link'],pdf:['b-red','PDF'],doc:['b-purple','Doc'],dataset:['b-teal','Dataset'],tool:['b-amber','Tool'],other:['b-gray','Other']}[t]||['b-gray','Other']);
+const iBadge = t => ({question:['b-blue','Research question'],hypothesis:['b-purple','Hypothesis'],method:['b-teal','Methodology'],gap:['b-amber','Gap in lit'],connection:['b-pink','Connection'],note:['b-gray','Note']}[t]||['b-gray','Note']);
+const wBadge = t => ({freewrite:['b-gray','Freewrite'],draft:['b-blue','Draft'],outline:['b-purple','Outline'],argument:['b-teal','Argument'],reflect:['b-pink','Reflection'],meeting:['b-amber','Meeting notes']}[t]||['b-gray','Note']);
+const fbCtx  = c => ({meeting:'Meeting',email:'Email',written:'Written',defense:'Defense/Panel',draft:'Draft review',other:'Other'}[c]||c);
 
-// OVERVIEW
+// ── OVERVIEW ──────────────────────────────────────────────────────────────────
 function renderOverview() {
   const openFb = data.feedback.filter(f=>f.status==='open').length;
-  const done = data.steps.filter(s=>s.done).length;
-  const pct  = data.steps.length ? Math.round((done/data.steps.length)*100) : 0;
+  const done   = data.steps.filter(s=>s.done).length;
+  const pct    = data.steps.length ? Math.round((done/data.steps.length)*100) : 0;
   document.getElementById('ov-metrics').innerHTML = `
     <div class="metric"><div class="metric-val">${data.papers.length}</div><div class="metric-lbl">Papers</div></div>
     <div class="metric"><div class="metric-val">${data.papers.filter(p=>p.status==='cited').length}</div><div class="metric-lbl">Cited</div></div>
@@ -451,114 +560,88 @@ function renderOverview() {
     : '<div style="font-size:12px;color:var(--text3);padding-top:8px;">No open feedback — great work!</div>';
 
   const notes = document.getElementById('global-notes');
-  if (notes && !notes.dataset.loaded) { notes.value = data.notes; notes.dataset.loaded='1'; }
-  checkBanner();
+  if (notes && !notes.dataset.loaded) { notes.value=data.notes; notes.dataset.loaded='1'; }
 }
 
-// PAPERS
+// ── PAPERS ────────────────────────────────────────────────────────────────────
 function addPaper() {
-  const t = v('p-title'); if (!t) return;
-  data.papers.unshift({ id:Date.now(), title:t, author:v('p-author'), year:v('p-year'), status:v('p-status'), link:v('p-link'), added:today() });
+  const t=v('p-title'); if(!t) return;
+  data.papers.unshift({id:Date.now(),title:t,author:v('p-author'),year:v('p-year'),status:v('p-status'),link:v('p-link'),added:today()});
   ['p-title','p-author','p-year','p-link'].forEach(id=>document.getElementById(id).value='');
-  save(); renderPapers(); renderOverview();
+  debouncedSync(); renderPapers(); renderOverview();
 }
-function filterPapers(f,btn) { data.filters.papers=f; chips(btn); save(); renderPapers(); }
-function renderPapers() {
-  const f = data.filters.papers;
-  const list = f==='all' ? data.papers : data.papers.filter(p=>p.status===f);
-  const el = document.getElementById('papers-list');
-  if (!list.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📄</div>No papers here yet.</div>'; return; }
-  el.innerHTML = list.map(p=>{
-    const [bc,bl] = pBadge(p.status);
-    return `<div class="card"><div class="row">
-      <div class="grow">
-        <div class="item-title">${esc(p.title)}</div>
-        <div class="item-meta">${[p.author,p.year].filter(Boolean).join(' · ')}${p.added?' · Added '+p.added:''}</div>
-        ${p.link?`<a class="item-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.link)}</a>`:''}
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px;">
-        <select onchange="updateField('papers',${p.id},'status',this.value)" style="font-size:12px;padding:4px 7px;">
-          ${['unread','reading','annotated','cited'].map(s=>`<option ${p.status===s?'selected':''} value="${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
-        </select>
-        <button class="ghost-btn danger-btn" onclick="del('papers',${p.id});renderPapers();renderOverview();" title="Delete">✕</button>
-      </div>
-    </div></div>`;
-  }).join('');
+function filterPapers(f,btn){data.filters.papers=f;chips(btn);renderPapers();}
+function renderPapers(){
+  const f=data.filters.papers, list=f==='all'?data.papers:data.papers.filter(p=>p.status===f);
+  const el=document.getElementById('papers-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📄</div>No papers here yet.</div>';return;}
+  el.innerHTML=list.map(p=>{const[bc,bl]=pBadge(p.status);return`<div class="card"><div class="row">
+    <div class="grow"><div class="item-title">${esc(p.title)}</div>
+    <div class="item-meta">${[p.author,p.year].filter(Boolean).join(' · ')}${p.added?' · Added '+p.added:''}</div>
+    ${p.link?`<a class="item-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.link)}</a>`:''}</div>
+    <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px;">
+      <select onchange="updateField('papers',${p.id},'status',this.value)" style="font-size:12px;padding:4px 7px;">
+        ${['unread','reading','annotated','cited'].map(s=>`<option ${p.status===s?'selected':''} value="${s}">${s[0].toUpperCase()+s.slice(1)}</option>`).join('')}
+      </select>
+      <button class="ghost-btn danger-btn" onclick="del('papers',${p.id});renderPapers();renderOverview();" title="Delete">✕</button>
+    </div></div></div>`;}).join('');
 }
 
-// RESOURCES
-function addResource() {
-  const t = v('r-title'); if (!t) return;
-  data.resources.unshift({ id:Date.now(), title:t, url:v('r-url'), type:v('r-type'), notes:v('r-notes'), added:today() });
+// ── RESOURCES ─────────────────────────────────────────────────────────────────
+function addResource(){
+  const t=v('r-title');if(!t)return;
+  data.resources.unshift({id:Date.now(),title:t,url:v('r-url'),type:v('r-type'),notes:v('r-notes'),added:today()});
   ['r-title','r-url','r-notes'].forEach(id=>document.getElementById(id).value='');
-  save(); renderResources(); renderOverview();
+  debouncedSync();renderResources();renderOverview();
 }
-function filterRes(f,btn) { data.filters.resources=f; chips(btn); save(); renderResources(); }
-function renderResources() {
-  const f = data.filters.resources;
-  const list = f==='all' ? data.resources : data.resources.filter(r=>r.type===f);
-  const el = document.getElementById('resources-list');
-  if (!list.length) { el.innerHTML='<div class="empty"><div class="empty-icon">🔗</div>No resources yet.</div>'; return; }
-  el.innerHTML = list.map(r=>{
-    const [bc,bl] = rBadge(r.type);
-    return `<div class="card"><div class="row">
-      <div class="grow">
-        <div class="item-title">${esc(r.title)}</div>
-        ${r.url?`<a class="item-link" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.url)}</a>`:''}
-        ${r.notes?`<div class="item-meta" style="margin-top:4px;">${esc(r.notes)}</div>`:''}
-        <div style="margin-top:6px;"><span class="badge ${bc}">${bl}</span></div>
-      </div>
-      <button class="ghost-btn danger-btn" onclick="del('resources',${r.id});renderResources();renderOverview();" title="Delete" style="flex-shrink:0;">✕</button>
-    </div></div>`;
-  }).join('');
+function filterRes(f,btn){data.filters.resources=f;chips(btn);renderResources();}
+function renderResources(){
+  const f=data.filters.resources,list=f==='all'?data.resources:data.resources.filter(r=>r.type===f);
+  const el=document.getElementById('resources-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔗</div>No resources yet.</div>';return;}
+  el.innerHTML=list.map(r=>{const[bc,bl]=rBadge(r.type);return`<div class="card"><div class="row">
+    <div class="grow"><div class="item-title">${esc(r.title)}</div>
+    ${r.url?`<a class="item-link" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.url)}</a>`:''}
+    ${r.notes?`<div class="item-meta" style="margin-top:4px;">${esc(r.notes)}</div>`:''}
+    <div style="margin-top:6px;"><span class="badge ${bc}">${bl}</span></div></div>
+    <button class="ghost-btn danger-btn" onclick="del('resources',${r.id});renderResources();renderOverview();" title="Delete" style="flex-shrink:0;">✕</button>
+    </div></div>`;}).join('');
 }
 
-// IDEAS
-function addIdea() {
-  const t = v('i-text'); if (!t) return;
-  data.ideas.unshift({ id:Date.now(), text:t, tag:v('i-tag'), added:today() });
+// ── IDEAS ─────────────────────────────────────────────────────────────────────
+function addIdea(){
+  const t=v('i-text');if(!t)return;
+  data.ideas.unshift({id:Date.now(),text:t,tag:v('i-tag'),added:today()});
   document.getElementById('i-text').value='';
-  save(); renderIdeas(); renderOverview();
+  debouncedSync();renderIdeas();renderOverview();
 }
-function filterIdeas(f,btn) { data.filters.ideas=f; chips(btn); save(); renderIdeas(); }
-function renderIdeas() {
-  const f = data.filters.ideas;
-  const list = f==='all' ? data.ideas : data.ideas.filter(i=>i.tag===f);
-  const el = document.getElementById('ideas-list');
-  if (!list.length) { el.innerHTML='<div class="empty"><div class="empty-icon">💡</div>No ideas yet — capture research questions, hypotheses, gaps.</div>'; return; }
-  el.innerHTML = list.map(i=>{
-    const [bc,bl] = iBadge(i.tag);
-    return `<div class="card"><div class="row" style="align-items:flex-start;">
-      <div class="grow">
-        <div style="font-size:14px;line-height:1.75;white-space:pre-wrap;">${esc(i.text)}</div>
-        <div style="margin-top:6px;display:flex;gap:6px;align-items:center;">
-          <span class="badge ${bc}">${bl}</span>
-          <span style="font-size:11px;color:var(--text3);">${i.added}</span>
-        </div>
-      </div>
-      <button class="ghost-btn danger-btn" onclick="del('ideas',${i.id});renderIdeas();renderOverview();" title="Delete" style="flex-shrink:0;">✕</button>
-    </div></div>`;
-  }).join('');
+function filterIdeas(f,btn){data.filters.ideas=f;chips(btn);renderIdeas();}
+function renderIdeas(){
+  const f=data.filters.ideas,list=f==='all'?data.ideas:data.ideas.filter(i=>i.tag===f);
+  const el=document.getElementById('ideas-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">💡</div>No ideas yet.</div>';return;}
+  el.innerHTML=list.map(i=>{const[bc,bl]=iBadge(i.tag);return`<div class="card"><div class="row" style="align-items:flex-start;">
+    <div class="grow"><div style="font-size:14px;line-height:1.75;white-space:pre-wrap;">${esc(i.text)}</div>
+    <div style="margin-top:6px;display:flex;gap:6px;align-items:center;"><span class="badge ${bc}">${bl}</span>
+    <span style="font-size:11px;color:var(--text3);">${i.added}</span></div></div>
+    <button class="ghost-btn danger-btn" onclick="del('ideas',${i.id});renderIdeas();renderOverview();" title="Delete" style="flex-shrink:0;">✕</button>
+    </div></div>`;}).join('');
 }
 
-// FEEDBACK
-function addFeedback() {
-  const t = v('fb-text'); if (!t) return;
-  data.feedback.unshift({ id:Date.now(), from:v('fb-from')||'Unknown', date:v('fb-date')||today(), context:v('fb-context'), priority:v('fb-priority'), chapter:v('fb-chapter'), text:t, status:'open', added:today() });
+// ── FEEDBACK ──────────────────────────────────────────────────────────────────
+function addFeedback(){
+  const t=v('fb-text');if(!t)return;
+  data.feedback.unshift({id:Date.now(),from:v('fb-from')||'Unknown',date:v('fb-date')||today(),context:v('fb-context'),priority:v('fb-priority'),chapter:v('fb-chapter'),text:t,status:'open',added:today()});
   ['fb-from','fb-date','fb-chapter','fb-text'].forEach(id=>document.getElementById(id).value='');
-  save(); renderFeedback(); renderOverview();
+  debouncedSync();renderFeedback();renderOverview();
 }
-function filterFb(f,btn) { data.filters.feedback=f; chips(btn); save(); renderFeedback(); }
-function setFbStatus(id, status) {
-  const f = data.feedback.find(f=>f.id===id);
-  if (f) { f.status=status; save(); renderFeedback(); renderOverview(); }
-}
-function renderFeedback() {
-  const f = data.filters.feedback;
-  const list = f==='all' ? data.feedback : data.feedback.filter(fb=>fb.status===f);
-  const el = document.getElementById('feedback-list');
-  if (!list.length) { el.innerHTML='<div class="empty"><div class="empty-icon">💬</div>No feedback logged yet. Add entries from advisor meetings, emails, or written comments.</div>'; return; }
-  el.innerHTML = list.map(fb=>`<div class="fb-card">
+function filterFb(f,btn){data.filters.feedback=f;chips(btn);renderFeedback();}
+function setFbStatus(id,status){const f=data.feedback.find(f=>f.id===id);if(f){f.status=status;debouncedSync();renderFeedback();renderOverview();}}
+function renderFeedback(){
+  const f=data.filters.feedback,list=f==='all'?data.feedback:data.feedback.filter(fb=>fb.status===f);
+  const el=document.getElementById('feedback-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">💬</div>No feedback logged yet.</div>';return;}
+  el.innerHTML=list.map(fb=>`<div class="fb-card">
     <div class="fb-header">
       <span style="font-size:14px;font-weight:500;">${esc(fb.from)}</span>
       <span class="badge b-gray" style="font-size:11px;">${fbCtx(fb.context)}</span>
@@ -569,109 +652,83 @@ function renderFeedback() {
     <div class="fb-body">${esc(fb.text)}</div>
     <div class="fb-status">
       <span style="font-size:11px;color:var(--text2);margin-right:4px;align-self:center;">Status:</span>
-      ${['open','in-progress','addressed'].map(s=>`<button class="status-chip ${fb.status===s?'sel':''}" data-v="${s}" onclick="setFbStatus(${fb.id},'${s}')">${s==='in-progress'?'In progress':s.charAt(0).toUpperCase()+s.slice(1)}</button>`).join('')}
-    </div>
-  </div>`).join('');
+      ${['open','in-progress','addressed'].map(s=>`<button class="status-chip ${fb.status===s?'sel':''}" data-v="${s}" onclick="setFbStatus(${fb.id},'${s}')">${s==='in-progress'?'In progress':s[0].toUpperCase()+s.slice(1)}</button>`).join('')}
+    </div></div>`).join('');
 }
 
-// WRITING
-function addEntry() {
-  const t = v('w-text'); if (!t) return;
-  const title = v('w-title') || ('Entry — '+today());
-  data.writing.unshift({ id:Date.now(), title:title, text:t, type:v('w-type'), added:today(), ts:new Date().toLocaleString() });
+// ── WRITING ───────────────────────────────────────────────────────────────────
+function addEntry(){
+  const t=v('w-text');if(!t)return;
+  const title=v('w-title')||('Entry — '+today());
+  data.writing.unshift({id:Date.now(),title:title,text:t,type:v('w-type'),added:today(),ts:new Date().toLocaleString()});
   ['w-title','w-text'].forEach(id=>document.getElementById(id).value='');
-  save(); renderWriting(); renderOverview();
+  debouncedSync();renderWriting();renderOverview();
 }
-function filterWriting(f,btn) { data.filters.writing=f; chips(btn); save(); renderWriting(); }
-function toggleExpand(id) {
-  const preview = document.getElementById('wprev-'+id);
-  const full    = document.getElementById('wfull-'+id);
-  if (!preview||!full) return;
-  const isCollapsed = full.style.display==='none';
-  preview.style.display = isCollapsed?'none':'block';
-  full.style.display    = isCollapsed?'block':'none';
-  if (isCollapsed) full.focus();
+function filterWriting(f,btn){data.filters.writing=f;chips(btn);renderWriting();}
+function toggleExpand(id){
+  const prev=document.getElementById('wprev-'+id),full=document.getElementById('wfull-'+id);
+  if(!prev||!full)return;
+  const collapsed=full.style.display==='none';
+  prev.style.display=collapsed?'none':'block';
+  full.style.display=collapsed?'block':'none';
+  if(collapsed)full.querySelector('textarea').focus();
 }
-function updateWriting(id,text) { const w=data.writing.find(w=>w.id===id); if(w){w.text=text;save();} }
-function renderWriting() {
-  const f = data.filters.writing;
-  const list = f==='all' ? data.writing : data.writing.filter(w=>w.type===f);
-  const el = document.getElementById('writing-list');
-  if (!list.length) { el.innerHTML='<div class="empty"><div class="empty-icon">✍️</div>Nothing here yet. This is your thinking space — no rules.</div>'; return; }
-  el.innerHTML = list.map(w=>{
-    const [bc,bl] = wBadge(w.type);
-    const preview = w.text.length>280 ? w.text.slice(0,280)+'…' : w.text;
-    return `<div class="fb-card">
-      <div class="fb-header">
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:14px;font-weight:500;">${esc(w.title)}</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:1px;">${w.ts||w.added}</div>
-        </div>
-        <span class="badge ${bc}">${bl}</span>
-        <button class="ghost-btn" onclick="toggleExpand(${w.id})" title="Expand to edit" style="flex-shrink:0;">Edit ↕</button>
-        <button class="ghost-btn danger-btn" onclick="del('writing',${w.id});renderWriting();renderOverview();" title="Delete">✕</button>
-      </div>
-      <div id="wprev-${w.id}" class="fb-body" style="cursor:pointer;" onclick="toggleExpand(${w.id})">${esc(preview)}</div>
-      <div id="wfull-${w.id}" style="display:none; padding:1rem;">
-        <textarea style="width:100%;min-height:160px;font-size:13px;line-height:1.8;" oninput="updateWriting(${w.id},this.value)">${esc(w.text)}</textarea>
-      </div>
-    </div>`;
-  }).join('');
+function updateWriting(id,text){const w=data.writing.find(w=>w.id===id);if(w){w.text=text;debouncedSync();}}
+function renderWriting(){
+  const f=data.filters.writing,list=f==='all'?data.writing:data.writing.filter(w=>w.type===f);
+  const el=document.getElementById('writing-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">✍️</div>Nothing here yet. This is your thinking space — no rules.</div>';return;}
+  el.innerHTML=list.map(w=>{const[bc,bl]=wBadge(w.type);const preview=w.text.length>280?w.text.slice(0,280)+'…':w.text;return`<div class="fb-card">
+    <div class="fb-header">
+      <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;">${esc(w.title)}</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:1px;">${w.ts||w.added}</div></div>
+      <span class="badge ${bc}">${bl}</span>
+      <button class="ghost-btn" onclick="toggleExpand(${w.id})" style="flex-shrink:0;">Edit ↕</button>
+      <button class="ghost-btn danger-btn" onclick="del('writing',${w.id});renderWriting();renderOverview();" title="Delete">✕</button>
+    </div>
+    <div id="wprev-${w.id}" class="fb-body" style="cursor:pointer;" onclick="toggleExpand(${w.id})">${esc(preview)}</div>
+    <div id="wfull-${w.id}" style="display:none;padding:1rem;">
+      <textarea style="width:100%;min-height:160px;font-size:13px;line-height:1.8;" oninput="updateWriting(${w.id},this.value)">${esc(w.text)}</textarea>
+    </div></div>`;}).join('');
 }
 
-// PROGRESS
-function addStep() {
-  const t = v('step-in'); if (!t) return;
-  data.steps.push({ id:Date.now(), text:t, done:false, priority:v('step-priority') });
+// ── PROGRESS ──────────────────────────────────────────────────────────────────
+function addStep(){
+  const t=v('step-in');if(!t)return;
+  data.steps.push({id:Date.now(),text:t,done:false,priority:v('step-priority')});
   document.getElementById('step-in').value='';
-  save(); renderProgress();
+  debouncedSync();renderProgress();
 }
-function toggleStep(id) { const s=data.steps.find(s=>s.id===id); if(s){s.done=!s.done;save();renderProgress();} }
-function renderProgress() {
-  const done = data.steps.filter(s=>s.done).length;
-  const pct  = data.steps.length ? Math.round((done/data.steps.length)*100) : 0;
-  document.getElementById('progress-pct').textContent = pct+'%';
-  document.getElementById('progress-bar').style.width  = pct+'%';
-  document.getElementById('steps-list').innerHTML = data.steps.map(s=>`
-    <li class="step-row">
-      <button class="step-box ${s.done?'done':''}" onclick="toggleStep(${s.id})" title="${s.done?'Mark incomplete':'Mark complete'}"></button>
-      <span class="step-label ${s.done?'done':''}">${esc(s.text)}</span>
-      ${s.priority==='high'?'<span style="font-size:10px;color:#b91c1c;" title="High priority">●</span>':s.priority==='medium'?'<span style="font-size:10px;color:#b45309;" title="Medium priority">●</span>':''}
-      <button class="ghost-btn danger-btn" onclick="del('steps',${s.id});renderProgress();" title="Delete" style="padding:3px 8px;flex-shrink:0;">✕</button>
+function toggleStep(id){const s=data.steps.find(s=>s.id===id);if(s){s.done=!s.done;debouncedSync();renderProgress();}}
+function renderProgress(){
+  const done=data.steps.filter(s=>s.done).length,pct=data.steps.length?Math.round((done/data.steps.length)*100):0;
+  document.getElementById('progress-pct').textContent=pct+'%';
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('steps-list').innerHTML=data.steps.map(s=>`<li class="step-row">
+    <button class="step-box ${s.done?'done':''}" onclick="toggleStep(${s.id})"></button>
+    <span class="step-label ${s.done?'done':''}">${esc(s.text)}</span>
+    ${s.priority==='high'?'<span style="font-size:10px;color:#b91c1c;" title="High">●</span>':s.priority==='medium'?'<span style="font-size:10px;color:#b45309;" title="Medium">●</span>':''}
+    <button class="ghost-btn danger-btn" onclick="del('steps',${s.id});renderProgress();" style="padding:3px 8px;flex-shrink:0;">✕</button>
     </li>`).join('');
 }
 
-// EXPORT / IMPORT
-function exportData() {
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download = 'thesis-hub-backup-'+new Date().toISOString().slice(0,10)+'.json';
-  a.click();
-  localStorage.setItem(LAST_EXPORT_KEY, Date.now().toString());
-  dismissBanner();
-}
-function importData(e) {
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try {
-      const imported=JSON.parse(ev.target.result);
-      if (confirm('Import this backup? This will replace your current data.')) {
-        data={...data,...imported,filters:{...data.filters,...(imported.filters||{})}};
-        save(); renderOverview(); renderProgress();
-        alert('Import successful!');
-      }
-    } catch(err){alert('Invalid backup file.');}
-  };
-  reader.readAsText(file);
-}
+const renders={overview:renderOverview,papers:renderPapers,resources:renderResources,ideas:renderIdeas,feedback:renderFeedback,writing:renderWriting,progress:renderProgress};
 
-const renders = { overview:renderOverview, papers:renderPapers, resources:renderResources, ideas:renderIdeas, feedback:renderFeedback, writing:renderWriting, progress:renderProgress };
-function updateField(type,id,key,val){const item=data[type].find(x=>x.id===id);if(item){item[key]=val;save();}}
-
-// Init
-renderOverview();
-renderProgress();
+// ── INIT ──────────────────────────────────────────────────────────────────────
+if (!ghToken) {
+  loadLocal();
+  renderOverview();
+  renderProgress();
+  // Show setup on first visit
+  if (!localStorage.getItem('thesis_setup_seen')) {
+    localStorage.setItem('thesis_setup_seen','1');
+    showSetup();
+  } else {
+    setSyncStatus('', 'Local only — click ⚙ Sync to connect');
+  }
+} else {
+  loadFromGitHub();
+}
 </script>
 </body>
 </html>
